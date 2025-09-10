@@ -1,31 +1,20 @@
-#!/usr/bin/env python3
-
-from random import choice as rc
-
-from faker import Faker
-
-from app import app
 from models import db, Author, Post
-
-
-fake = Faker()
+from app import app
 
 with app.app_context():
+    db.drop_all()
+    db.create_all()
 
-    Author.query.delete()
-    Post.query.delete()
+    author = Author(name="John Doe", phone_number="1234567890")
+    db.session.add(author)
+    db.session.commit()
 
-    authors = []
-    for n in range(25):
-        author = Author(name=fake.name(), phone_number='1324543333')
-        authors.append(author)
-
-    db.session.add_all(authors)
-    posts = []
-    for n in range(25):
-        post = Post(title='Secret banana', content='This is the content Secret' * 50, category= 'Fiction', summary="Summary Secret" )
-        posts.append(post)
-
-    db.session.add_all(posts)
-
+    post = Post(
+        title="Top 10 Secrets You Won't Believe",
+        content="x" * 300,  # >= 250 chars
+        summary="This is a short summary.",
+        category="Fiction",
+        author=author
+    )
+    db.session.add(post)
     db.session.commit()
